@@ -1,1 +1,5 @@
-export { default } from './index.js'
+import onRequest from './index.js'
+
+export default function onRequestHealth(context) {
+  return onRequest(context)
+}

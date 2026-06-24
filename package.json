@@ -4,7 +4,7 @@
   "description": "Convert LunaTV-config.json to Base58",
   "main": "encode.js",
   "scripts": {
-    "build": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\"",
+    "build": "node scripts/build-edgeone.js",
     "encode": "node encode.js"
   },
   "dependencies": {
