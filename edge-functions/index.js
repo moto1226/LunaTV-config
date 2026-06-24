@@ -6,7 +6,7 @@ const AUTHENTICATE_HEADERS = {
 
 export default async function onRequest(context) {
   const env = context.env || {}
-  const privateToken = env.PRIVATE_TOKEN
+  const privateToken = normalizeToken(env.PRIVATE_TOKEN)
 
   if (!privateToken) {
     return new Response('Missing PRIVATE_TOKEN', { status: 500 })
@@ -31,15 +31,15 @@ export default async function onRequest(context) {
 function getAuthorizationMethod(request, privateToken) {
   const url = new URL(request.url)
 
-  if (url.searchParams.get('key') === privateToken) {
+  if (normalizeToken(url.searchParams.get('key')) === privateToken) {
     return 'query'
   }
 
-  if (request.headers.get('x-api-key') === privateToken) {
+  if (normalizeToken(request.headers.get('x-api-key')) === privateToken) {
     return 'x-api-key'
   }
 
-  if (getBasicAuthPassword(request.headers.get('authorization')) === privateToken) {
+  if (normalizeToken(getBasicAuthPassword(request.headers.get('authorization'))) === privateToken) {
     return 'basic'
   }
 
@@ -62,11 +62,17 @@ function getBasicAuthPassword(authorization) {
   }
 }
 
+function normalizeToken(token) {
+  if (typeof token !== 'string') return ''
+
+  return token.trim().replace(/^['"]|['"]$/g, '')
+}
+
 function stripPrivateAuthHeaders(request, privateToken, authMethod) {
   const headers = new Headers(request.headers)
   let changed = false
 
-  if (headers.get('x-api-key') === privateToken) {
+  if (normalizeToken(headers.get('x-api-key')) === privateToken) {
     headers.delete('x-api-key')
     changed = true
   }
